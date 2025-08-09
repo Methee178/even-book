@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>แบบสอบถามสุขภาพ</title>
+<style>
+  :root{
+    --bg:#fff;
+    --card:#fff;
+    --accent:#b91c1c; /* แดงเลือดหมู */
+    --muted:#6b7280;
+    --danger:#dc2626;
+    font-family: "Sarabun", system-ui, -apple-system, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fef2f2;
+    color:#5f2120;
+    padding:24px;
+  }
+  .container{
+    width:100%;
+    max-width:480px;
+    background:var(--card);
+    border-radius:14px;
+    padding:28px;
+    box-shadow:0 8px 30px rgba(139,0,0,0.15);
+    border:1px solid rgba(220,38,38,0.3);
+  }
+  h1{
+    margin:0 0 18px 0;
+    font-size:22px;
+    color:#7f1d1d;
+  }
+  form{
+    display:grid;
+    gap:16px;
+  }
+  label{
+    font-size:14px;
+    color:#7f1d1d;
+    font-weight:600;
+  }
+  input[type=number], textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius:10px;
+    border:1px solid rgba(220,38,38,0.2);
+    background:#fff;
+    color:#5f2120;
+    font-size:15px;
+    outline:none;
+    transition:box-shadow .12s, border-color .12s;
+    resize: vertical;
+  }
+  input[type=number]:focus, textarea:focus {
+    box-shadow:0 4px 18px rgba(185,28,28,0.2);
+    border-color:rgba(185,28,28,0.8);
+  }
+  .radio-group {
+    display:flex;
+    gap:16px;
+  }
+  .radio-group label {
+    font-weight:normal;
+    color:#5f2120;
+  }
+  input[type=radio] {
+    accent-color: var(--accent);
+    cursor:pointer;
+  }
+  input[type=checkbox] {
+    accent-color: var(--accent);
+    cursor:pointer;
+    margin-right:8px;
+  }
+  .error {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 4px;
+    min-height: 18px;
+  }
+  button {
+    padding: 12px;
+    border-radius: 10px;
+    border: 0;
+    background: linear-gradient(90deg, var(--accent), #7f1d1d);
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #7f1d1d;
+  }
+  /* modal */
+  .modal-backdrop{
+    position: fixed;
+    inset:0;
+    background: rgba(220,38,38,0.15);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:100;
+  }
+  .modal{
+    background:#fff;
+    padding:20px 28px;
+    border-radius:12px;
+    max-width:320px;
+    border:1px solid rgba(185,28,28,0.3);
+    box-shadow:0 10px 40px rgba(139,0,0,0.15);
+    color:#5f2120;
+    text-align:center;
+  }
+  .modal h2{
+    margin:0 0 10px 0;
+    color:#7f1d1d;
+  }
+  .modal p {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+  }
+  .modal button {
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="region" aria-labelledby="formTitle">
+    <h1 id="formTitle">แบบสอบถามสุขภาพ</h1>
+    <form id="healthForm" novalidate>
+      <div>
+        <label for="age">อายุ (ปี)</label>
+        <input id="age" name="age" type="number" min="15" max="60" placeholder="15 - 60" required>
+        <div class="error" id="errorAge" aria-live="polite"></div>
+      </div>
+
+      <fieldset>
+        <legend>เพศ</legend>
+        <div class="radio-group">
+          <label><input type="radio" name="gender" value="ชาย" required> ชาย</label>
+          <label><input type="radio" name="gender" value="หญิง"> หญิง</label>
+          <label><input type="radio" name="gender" value="อื่นๆ"> อื่นๆ</label>
+        </div>
+        <div class="error" id="errorGender" aria-live="polite"></div>
+      </fieldset>
+
+      <div>
+        <label for="weight">น้ำหนัก (กก.)</label>
+        <input id="weight" name="weight" type="number" min="1" step="0.1" placeholder="เช่น 60" required>
+        <div class="error" id="errorWeight" aria-live="polite"></div>
+      </div>
+
+      <div>
+        <label for="height">ส่วนสูง (ซม.)</label>
+        <input id="height" name="height" type="number" min="1" step="0.1" placeholder="เช่น 170" required>
+        <div class="error" id="errorHeight" aria-live="polite"></div>
+      </div>
+
+      <div>
+        <label><input type="checkbox" id="hasDisease" name="hasDisease"> มีโรคประจำตัว</label>
+      </div>
+
+      <div id="diseaseDetailsWrapper" style="display:none;">
+        <label for="diseaseDetails">กรุณาระบุโรคประจำตัว</label>
+        <textarea id="diseaseDetails" name="diseaseDetails" rows="4" placeholder="ระบุรายละเอียดโรค" ></textarea>
+        <div class="error" id="errorDiseaseDetails" aria-live="polite"></div>
+      </div>
+
+      <button type="submit">ส่งแบบสอบถาม</button>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <h2>ผลลัพธ์ BMI</h2>
+      <p id="modalResult"></p>
+      <button id="modalCloseBtn">ปิด</button>
+    </div>
+  </div>
+
+<script>
+  const form = document.getElementById('healthForm');
+  const ageInput = document.getElementById('age');
+  const genderInputs = document.getElementsByName('gender');
+  const weightInput = document.getElementById('weight');
+  const heightInput = document.getElementById('height');
+  const hasDiseaseCheckbox = document.getElementById('hasDisease');
+  const diseaseDetailsWrapper = document.getElementById('diseaseDetailsWrapper');
+  const diseaseDetailsTextarea = document.getElementById('diseaseDetails');
+
+  const errorAge = document.getElementById('errorAge');
+  const errorGender = document.getElementById('errorGender');
+  const errorWeight = document.getElementById('errorWeight');
+  const errorHeight = document.getElementById('errorHeight');
+  const errorDiseaseDetails = document.getElementById('errorDiseaseDetails');
+
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalResult = document.getElementById('modalResult');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+  // แสดง/ซ่อน textarea โรคประจำตัวตาม checkbox
+  hasDiseaseCheckbox.addEventListener('change', () => {
+    if(hasDiseaseCheckbox.checked){
+      diseaseDetailsWrapper.style.display = 'block';
+    } else {
+      diseaseDetailsWrapper.style.display = 'none';
+      diseaseDetailsTextarea.value = '';
+      errorDiseaseDetails.textContent = '';
+    }
+  });
+
+  function getSelectedGender(){
+    for(const g of genderInputs){
+      if(g.checked) return g.value;
+    }
+    return null;
+  }
+
+  function validate(){
+    let valid = true;
+
+    errorAge.textContent = '';
+    errorGender.textContent = '';
+    errorWeight.textContent = '';
+    errorHeight.textContent = '';
+    errorDiseaseDetails.textContent = '';
+
+    // อายุ
+    const age = Number(ageInput.value);
+    if(!age || age < 15 || age > 60){
+      errorAge.textContent = 'อายุต้องอยู่ระหว่าง 15 - 60 ปี';
+      valid = false;
+    }
+
+    // เพศ
+    if(!getSelectedGender()){
+      errorGender.textContent = 'กรุณาเลือกเพศ';
+      valid = false;
+    }
+
+    // น้ำหนัก
+    const weight = Number(weightInput.value);
+    if(!weight || weight <= 0){
+      errorWeight.textContent = 'น้ำหนักต้องเป็นค่าบวก';
+      valid = false;
+    }
+
+    // ส่วนสูง
+    const height = Number(heightInput.value);
+    if(!height || height <= 0){
+      errorHeight.textContent = 'ส่วนสูงต้องเป็นค่าบวก';
+      valid = false;
+    }
+
+    // โรคประจำตัว ถ้าเช็ค ต้องกรอก textarea
+    if(hasDiseaseCheckbox.checked){
+      if(!diseaseDetailsTextarea.value.trim()){
+        errorDiseaseDetails.textContent = 'กรุณากรอกรายละเอียดโรคประจำตัว';
+        valid = false;
+      }
+    }
+
+    return valid;
+  }
+
+  function calculateBMI(weight, height){
+    // kg / (m)^2
+    return weight / ((height / 100) ** 2);
+  }
+
+  function getBMICategory(bmi){
+    if(bmi < 18.5) return 'น้ำหนักน้อย';
+    if(bmi < 24.9) return 'น้ำหนักปกติ';
+    if(bmi < 29.9) return 'น้ำหนักเกิน';
+    return 'อ้วน';
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if(validate()){
+      const weight = Number(weightInput.value);
+      const height = Number(heightInput.value);
+      const bmi = calculateBMI(weight, height);
+      const category = getBMICategory(bmi);
+
+      modalResult.textContent = `BMI = ${bmi.toFixed(2)} (${category})`;
+      modalBackdrop.style.display = 'flex';
+      modalBackdrop.setAttribute('aria-hidden', 'false');
+    }
+  });
+
+  modalCloseBtn.addEventListener('click', () => {
+    modalBackdrop.style.display = 'none';
+    modalBackdrop.setAttribute('aria-hidden', 'true');
+  });
+
+  modalBackdrop.addEventListener('click', e => {
+    if(e.target === modalBackdrop){
+      modalBackdrop.style.display = 'none';
+      modalBackdrop.setAttribute('aria-hidden', 'true');
+    }
+  });
+</script>
+</body>
+</html>
